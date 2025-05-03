@@ -6,6 +6,8 @@ import { RescueAnimalEventEntity } from '../typeorm/entities/rescue-animal-event
 import { UserEntity } from '../typeorm/entities/user.entity';
 import { PetEntity } from '../typeorm/entities/pet.entity';
 import { BreedEntity } from '../typeorm/entities/breed.entity';
+import { CountryEntity } from '../typeorm/entities/country.entity';
+import { CityEntity } from '../typeorm/entities/city.entity';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { BreedEntity } from '../typeorm/entities/breed.entity';
       UserEntity,
       PetEntity,
       BreedEntity,
+      CountryEntity,
+      CityEntity,
     ]),
   ],
   controllers: [RescueEventController],

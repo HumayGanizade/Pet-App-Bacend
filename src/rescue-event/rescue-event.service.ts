@@ -6,6 +6,8 @@ import { UserEntity } from '../typeorm/entities/user.entity';
 import { PetEntity } from '../typeorm/entities/pet.entity';
 import { BreedEntity } from '../typeorm/entities/breed.entity';
 import { RescueEventDto } from './dto/rescue-event.dto';
+import { CountryEntity } from '../typeorm/entities/country.entity';
+import { CityEntity } from '../typeorm/entities/city.entity';
 
 @Injectable()
 export class RescueEventService {
@@ -18,6 +20,10 @@ export class RescueEventService {
     private petRepo: Repository<PetEntity>,
     @InjectRepository(BreedEntity)
     private breedRepo: Repository<BreedEntity>,
+    @InjectRepository(CountryEntity)
+    private countryRepo: Repository<CountryEntity>,
+    @InjectRepository(CityEntity)
+    private cityRepo: Repository<CityEntity>,
   ) {}
 
   async getAll() {
@@ -45,7 +51,7 @@ export class RescueEventService {
     } else return REvents;
   }
 
-  async create(id, dto: RescueEventDto) {
+  async create(id: string, dto: RescueEventDto) {
     const user = await this.userRepo.findOne({ where: { id: id } });
     const pet = await this.petRepo.findOne({ where: { id: dto.petId } });
     if (!pet) {
@@ -61,12 +67,34 @@ export class RescueEventService {
         HttpStatus.NOT_FOUND,
       );
     }
-    const newREvent = await this.rescueAnimalEventRepo.create(dto);
+
+    const country = await this.countryRepo.findOne({
+      where: { id: dto.countryId },
+    });
+    if (!country) {
+      throw new HttpException(
+        'country with given id was not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const city = await this.cityRepo.findOne({
+      where: { id: dto.cityId },
+    });
+    if (!city) {
+      throw new HttpException(
+        'city with given id was not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const newREvent = this.rescueAnimalEventRepo.create(dto);
     newREvent.pet = pet;
     newREvent.breed = breed;
     newREvent.user = user;
+    newREvent.country = country;
+    newREvent.city = city;
     await this.rescueAnimalEventRepo.save(newREvent);
-    return 'event was successfully created';
+    return { message: 'event was successfully created' };
   }
 
   async editById(id, dto: RescueEventDto) {

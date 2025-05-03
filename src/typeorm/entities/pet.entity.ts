@@ -18,9 +18,6 @@ export class PetEntity {
   @Column({ type: 'varchar' })
   name: string;
 
-  @Column({ type: 'int' })
-  type: number;
-
   @OneToMany(
     () => RescueAnimalEventEntity,
     (rescue_animal_event) => rescue_animal_event.pet,

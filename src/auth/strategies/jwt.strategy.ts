@@ -13,7 +13,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   validate(payload: any) {
-    console.log('JWT Payload:', payload); // Debugging
     if (!payload.id || !payload.gmail) {
       throw new Error('Invalid token payload');
     }

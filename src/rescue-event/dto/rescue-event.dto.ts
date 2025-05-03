@@ -30,4 +30,10 @@ export class RescueEventDto {
 
   @IsString({ message: 'breedId must be string type' })
   breedId: string;
+
+  @IsString({ message: 'country must be string type' })
+  countryId: string;
+
+  @IsString({ message: 'city must be string type' })
+  cityId: string;
 }

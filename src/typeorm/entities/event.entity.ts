@@ -29,8 +29,8 @@ export class EventEntity extends BaseEntity {
   @Column({ type: 'timestamp' })
   endDate: Date;
 
-  @Column({ type: 'int' })
-  type: number;
+  @Column({ type: 'varchar' })
+  type: string;
 
   @Column({ type: 'int' })
   price: number;
@@ -44,7 +44,7 @@ export class EventEntity extends BaseEntity {
   @Column({ type: 'varchar' })
   location: string;
 
-  @Column({ type: 'varchar', length: 500 })
+  @Column({ type: 'text' })
   photo: string;
 
   @Column({ type: 'varchar' })
@@ -58,12 +58,6 @@ export class EventEntity extends BaseEntity {
 
   @Column({ type: 'varchar' })
   gmail: string;
-
-  @Column({ type: 'boolean' })
-  allAnimals: boolean;
-
-  @Column({ type: 'boolean' })
-  allBreeds: boolean;
 
   @ManyToOne(() => UserEntity, (user) => user.events)
   user: UserEntity;

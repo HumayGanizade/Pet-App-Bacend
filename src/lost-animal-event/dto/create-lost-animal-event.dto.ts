@@ -40,4 +40,10 @@ export class CreateLostAnimalEventDto {
 
   @IsString({ message: 'breedId should be string' })
   breedId: string;
+
+  @IsString({ message: 'country must be string type' })
+  countryId: string;
+
+  @IsString({ message: 'city must be string type' })
+  cityId: string;
 }

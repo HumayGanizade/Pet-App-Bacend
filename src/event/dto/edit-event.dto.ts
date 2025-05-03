@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 
 export class EditEventDto {
-  @IsString()
+  @IsString({ message: 'name must be string type' })
   name: string;
 
   @IsDate()
@@ -18,40 +18,40 @@ export class EditEventDto {
   @IsDate()
   endDate: Date;
 
-  @IsInt()
-  type: number;
+  @IsString({ message: 'type must be integer type' })
+  type: string;
 
-  @IsInt()
+  @IsInt({ message: 'price must be integer type' })
   price: number;
 
-  @IsString()
+  @IsString({ message: 'location must be string type' })
   location: string;
 
-  @IsString()
+  @IsString({ message: 'photo must be string type' })
   @Length(0, 500)
   photo: string;
 
-  @IsString()
+  @IsString({ message: 'info must be string type' })
   info: string;
 
-  @IsString()
+  @IsString({ message: 'plan must be string type' })
   plan: string;
 
-  @IsString()
+  @IsString({ message: 'contact_number must be string type' })
   contact_number: string;
 
   @IsEmail()
   gmail: string;
-
-  @IsBoolean()
-  allAnimals: boolean;
-
-  @IsBoolean()
-  allBreeds: boolean;
 
   @IsArray()
   petsIds?: string[];
 
   @IsArray()
   breedIds?: string[];
+
+  @IsString({ message: 'country must be string type' })
+  countryId: string;
+
+  @IsString({ message: 'city must be string type' })
+  cityId: string;
 }

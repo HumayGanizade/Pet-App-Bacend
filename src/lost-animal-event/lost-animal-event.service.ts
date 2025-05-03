@@ -6,6 +6,8 @@ import { UserEntity } from '../typeorm/entities/user.entity';
 import { BreedEntity } from '../typeorm/entities/breed.entity';
 import { PetEntity } from '../typeorm/entities/pet.entity';
 import { CreateLostAnimalEventDto } from './dto/create-lost-animal-event.dto';
+import { CountryEntity } from '../typeorm/entities/country.entity';
+import { CityEntity } from '../typeorm/entities/city.entity';
 
 @Injectable()
 export class LostAnimalEventService {
@@ -18,6 +20,10 @@ export class LostAnimalEventService {
     private breedRepo: Repository<BreedEntity>,
     @InjectRepository(PetEntity)
     private petRepo: Repository<PetEntity>,
+    @InjectRepository(CountryEntity)
+    private countryRepo: Repository<CountryEntity>,
+    @InjectRepository(CityEntity)
+    private cityRepo: Repository<CityEntity>,
   ) {}
 
   async getAll() {
@@ -72,10 +78,32 @@ export class LostAnimalEventService {
     if (!breed) {
       throw new HttpException('no breed with given id', HttpStatus.NOT_FOUND);
     }
-    const newLOEvent = await this.lostAnimalEventRepo.create(dto);
+
+    const country = await this.countryRepo.findOne({
+      where: { id: dto.countryId },
+    });
+    if (!country) {
+      throw new HttpException(
+        'country with given id was not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const city = await this.cityRepo.findOne({
+      where: { id: dto.cityId },
+    });
+    if (!city) {
+      throw new HttpException(
+        'city with given id was not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const newLOEvent = this.lostAnimalEventRepo.create(dto);
     newLOEvent.user = user;
     newLOEvent.pet = pet;
     newLOEvent.breed = breed;
+    newLOEvent.country = country;
+    newLOEvent.city = city;
     await this.lostAnimalEventRepo.save(newLOEvent);
     return 'event was successfully created';
   }

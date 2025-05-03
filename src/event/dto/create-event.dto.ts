@@ -5,11 +5,10 @@ import {
   IsInt,
   IsEmail,
   Length,
-  IsBoolean,
 } from 'class-validator';
 
 export class CreateEventDto {
-  @IsString()
+  @IsString({ message: 'name should be type  string' })
   name: string;
 
   @IsDate()
@@ -18,40 +17,40 @@ export class CreateEventDto {
   @IsDate()
   endDate: Date;
 
-  @IsInt()
-  type: number;
+  @IsString({ message: 'type should be type  string' })
+  type: string;
 
-  @IsInt()
+  @IsInt({ message: 'price should be type  string' })
   price: number;
 
-  @IsString()
+  @IsString({ message: 'location should be type  string' })
   location: string;
 
-  @IsString()
+  @IsString({ message: 'photo should be type  string' })
   @Length(0, 500)
   photo: string;
 
-  @IsString()
+  @IsString({ message: 'info should be type  string' })
   info: string;
 
-  @IsString()
+  @IsString({ message: 'plan should be type  string' })
   plan: string;
 
-  @IsString()
+  @IsString({ message: 'contact_number should be type  string' })
   contact_number: string;
 
   @IsEmail()
   gmail: string;
-
-  @IsBoolean()
-  allAnimals: boolean;
-
-  @IsBoolean()
-  allBreeds: boolean;
 
   @IsArray()
   petsIds?: string[];
 
   @IsArray()
   breedIds?: string[];
+
+  @IsString({ message: 'country must be string type' })
+  countryId: string;
+
+  @IsString({ message: 'city must be string type' })
+  cityId: string;
 }

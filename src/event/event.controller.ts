@@ -35,6 +35,11 @@ export class EventController {
     return this.eventService.getAllEvents();
   }
 
+  @Get('getEventById/:id')
+  getEventById(@Param('id') id: string) {
+    return this.eventService.getEventById(id);
+  }
+
   @Get('getAllEventsByUserId/:id')
   getAllEventsByUserId(@Param('id') id: string) {
     return this.eventService.getAllEventsByUserId(id);
@@ -50,33 +55,34 @@ export class EventController {
   async getFilteredEvents(
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
-    @Query('type') type?: number,
-    @Query('minPrice') minPrice?: number,
-    @Query('maxPrice') maxPrice?: number,
+    @Query('type') type?: string, // Оставляем string, так как Query всегда строка
+    @Query('minPrice') minPrice?: string,
+    @Query('maxPrice') maxPrice?: string,
     @Query('countryId') countryId?: string,
     @Query('cityId') cityId?: string,
-    @Query('allAnimals') allAnimals?: string,
-    @Query('animalIds') animalIds?: string,
-    @Query('allBreeds') allBreeds?: string,
+    @Query('petsIds') petsIds?: string,
     @Query('breedIds') breedIds?: string,
+    @Query('name') name?: string,
   ) {
-    const parsedAnimalIds = animalIds ? animalIds.split(',') : [];
-    const parsedBreedIds = breedIds ? breedIds.split(',') : [];
+    const parsedAnimalIds = petsIds
+      ? petsIds.split(',').filter((id) => id)
+      : [];
 
-    const isAllAnimals = allAnimals === 'true'; // Convert the string to boolean
+    const parsedBreedIds = breedIds
+      ? breedIds.split(',').filter((id) => id)
+      : [];
 
     return this.eventService.getFilteredEvents({
       startDate,
       endDate,
-      type: type ? Number(type) : undefined,
-      minPrice: minPrice ? Number(minPrice) : undefined,
-      maxPrice: maxPrice ? Number(maxPrice) : undefined,
+      type: type && type.trim() !== '' ? Number(type) : null,
+      minPrice: minPrice && minPrice.trim() !== '' ? Number(minPrice) : null,
+      maxPrice: maxPrice && maxPrice.trim() !== '' ? Number(maxPrice) : null,
       countryId,
       cityId,
-      allAnimals: isAllAnimals, // Now it's a boolean flag
-      animalIds: isAllAnimals ? [] : parsedAnimalIds, // If allAnimals is true, ignore animalIds
-      allBreeds: allBreeds === 'true', // Convert the string to boolean
+      petsIds: parsedAnimalIds,
       breedIds: parsedBreedIds,
+      name,
     });
   }
 }

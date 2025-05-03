@@ -34,8 +34,9 @@ export class RescueEventController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  create(@Body() dto: RescueEventDto, @Request() req) {
-    return this.rescueEventService.create(dto, req.user.id);
+  create(@Body() dto: RescueEventDto, @Request() req: any)
+  {
+    return this.rescueEventService.create(req.user.id, dto);
   }
 
   @Put()

@@ -6,10 +6,19 @@ import { UserEntity } from '../typeorm/entities/user.entity';
 import { EventEntity } from '../typeorm/entities/event.entity';
 import { PetEntity } from '../typeorm/entities/pet.entity';
 import { BreedEntity } from '../typeorm/entities/breed.entity';
+import { CountryEntity } from '../typeorm/entities/country.entity';
+import { CityEntity } from '../typeorm/entities/city.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity, EventEntity, PetEntity, BreedEntity]),
+    TypeOrmModule.forFeature([
+      UserEntity,
+      EventEntity,
+      PetEntity,
+      BreedEntity,
+      CountryEntity,
+      CityEntity,
+    ]),
   ],
   controllers: [EventController],
   providers: [EventService],
