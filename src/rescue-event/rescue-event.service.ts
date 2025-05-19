@@ -8,6 +8,8 @@ import { BreedEntity } from '../typeorm/entities/breed.entity';
 import { RescueEventDto } from './dto/rescue-event.dto';
 import { CountryEntity } from '../typeorm/entities/country.entity';
 import { CityEntity } from '../typeorm/entities/city.entity';
+import { RescueEventFilterDto } from './dto/rescue-event-filter.dto';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class RescueEventService {
@@ -24,10 +26,49 @@ export class RescueEventService {
     private countryRepo: Repository<CountryEntity>,
     @InjectRepository(CityEntity)
     private cityRepo: Repository<CityEntity>,
+    private dataSource: DataSource,
   ) {}
 
-  async getAll() {
-    return await this.rescueAnimalEventRepo.find();
+  async getAll(
+    filter: RescueEventFilterDto,
+  ): Promise<RescueAnimalEventEntity[]> {
+    const qb = this.dataSource
+      .getRepository(RescueAnimalEventEntity)
+      .createQueryBuilder('event')
+      .leftJoinAndSelect('event.pet', 'pet')
+      .leftJoinAndSelect('event.breed', 'breed')
+      .leftJoinAndSelect('event.country', 'country')
+      .leftJoinAndSelect('event.city', 'city');
+
+    if (filter.minAge !== undefined) {
+      qb.andWhere('event.age >= :minAge', { minAge: filter.minAge });
+    }
+
+    if (filter.maxAge !== undefined) {
+      qb.andWhere('event.age <= :maxAge', { maxAge: filter.maxAge });
+    }
+
+    if (filter.gender !== undefined) {
+      qb.andWhere('event.gender == :gender', { gender: filter.gender });
+    }
+
+    if (filter.petId !== undefined) {
+      qb.andWhere('pet.id = :petId', { petId: filter.petId });
+    }
+
+    if (filter.breedIds?.length && filter.breedIds !== undefined) {
+      qb.andWhere('breed.id IN (:...breedIds)', { breedIds: filter.breedIds });
+    }
+
+    if (filter.countryId !== undefined) {
+      qb.andWhere('country.id = :countryId', { countryId: filter.countryId });
+    }
+
+    if (filter.cityId !== undefined) {
+      qb.andWhere('city.id = :cityId', { cityId: filter.cityId });
+    }
+    qb.orderBy('event.createdAt', 'DESC');
+    return qb.getMany();
   }
 
   async getById(id: string) {

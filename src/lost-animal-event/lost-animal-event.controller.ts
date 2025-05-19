@@ -34,7 +34,7 @@ export class LostAnimalEventController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  create(@Body() dto: CreateLostAnimalEventDto, @Request() req) {
+  create(@Body() dto: CreateLostAnimalEventDto, @Request() req: any) {
     return this.lostAnimalEventService.create(dto, req.user.id);
   }
 

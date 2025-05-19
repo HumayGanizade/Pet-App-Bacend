@@ -105,7 +105,7 @@ export class LostAnimalEventService {
     newLOEvent.country = country;
     newLOEvent.city = city;
     await this.lostAnimalEventRepo.save(newLOEvent);
-    return 'event was successfully created';
+    return { message: 'event was successfully created' };
   }
 
   async editById(dto: CreateLostAnimalEventDto, id: string) {
