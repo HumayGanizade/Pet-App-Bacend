@@ -63,6 +63,11 @@ export class DropdownInfoController {
     return this.dropdownInfoService.getAllCitiesByCountryId(id);
   }
 
+  @Get('getAllPetColors')
+  getAllPetColors() {
+    return this.dropdownInfoService.getAllPetColors();
+  }
+
   // @Get('getCountryById')
   // getCountryById(@Param('id') id: string) {
   //   return this.dropdownInfoService.getCountryById(id);

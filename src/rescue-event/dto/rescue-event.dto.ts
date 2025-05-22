@@ -10,6 +10,9 @@ export class RescueEventDto {
   @IsString({ message: 'gender must be string type' })
   gender: string;
 
+  @IsString({ message: 'color should be string' })
+  colorId: string;
+
   @IsString({ message: 'photo must be string type' })
   photo: string;
 

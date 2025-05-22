@@ -1,7 +1,11 @@
 import { IsOptional, IsString, IsInt, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class RescueEventFilterDto {
+export class LostAnimalEventFilterDto {
+  @IsOptional()
+  @IsString()
+  name: string;
+
   @IsOptional()
   @Type(() => Number)
   @IsInt()
@@ -18,7 +22,7 @@ export class RescueEventFilterDto {
 
   @IsOptional()
   @IsString()
-  color?: string;
+  colorId?: string;
 
   @IsOptional()
   @IsString()

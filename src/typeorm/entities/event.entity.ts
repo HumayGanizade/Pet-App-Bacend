@@ -44,7 +44,7 @@ export class EventEntity extends BaseEntity {
   @Column({ type: 'varchar' })
   location: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'longtext' })
   photo: string;
 
   @Column({ type: 'varchar' })

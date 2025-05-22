@@ -8,18 +8,20 @@ import {
   Request,
   Put,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { LostAnimalEventService } from './lost-animal-event.service';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { CreateLostAnimalEventDto } from './dto/create-lost-animal-event.dto';
+import { LostAnimalEventFilterDto } from './dto/lost-animal-event-filter.dto';
 
 @Controller('lost-animal-event')
 export class LostAnimalEventController {
   constructor(private lostAnimalEventService: LostAnimalEventService) {}
 
   @Get()
-  getAll() {
-    return this.lostAnimalEventService.getAll();
+  getAll(@Query() filter: LostAnimalEventFilterDto) {
+    return this.lostAnimalEventService.getAll(filter);
   }
 
   @Get(':id')
@@ -48,5 +50,10 @@ export class LostAnimalEventController {
   @UseGuards(JwtAuthGuard)
   deleteById(@Param('id') id: string) {
     return this.lostAnimalEventService.deleteById(id);
+  }
+
+  @Get('/getColors')
+  getColors() {
+    return this.lostAnimalEventService.getColors();
   }
 }

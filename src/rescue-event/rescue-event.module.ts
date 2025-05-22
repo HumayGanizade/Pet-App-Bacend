@@ -8,6 +8,7 @@ import { PetEntity } from '../typeorm/entities/pet.entity';
 import { BreedEntity } from '../typeorm/entities/breed.entity';
 import { CountryEntity } from '../typeorm/entities/country.entity';
 import { CityEntity } from '../typeorm/entities/city.entity';
+import { PetColorEntity } from '../typeorm/entities/pet-color.entity';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CityEntity } from '../typeorm/entities/city.entity';
       BreedEntity,
       CountryEntity,
       CityEntity,
+      PetColorEntity,
     ]),
   ],
   controllers: [RescueEventController],

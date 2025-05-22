@@ -12,6 +12,7 @@ import { CommentEntity } from './comment.entity';
 import { BreedEntity } from './breed.entity';
 import { CountryEntity } from './country.entity';
 import { CityEntity } from './city.entity';
+import { PetColorEntity } from './pet-color.entity';
 
 @Entity({ name: 'lost_animal_event' })
 export class LostAnimalEventEntity extends BaseEntity {
@@ -27,7 +28,10 @@ export class LostAnimalEventEntity extends BaseEntity {
   @Column({ type: 'varchar' })
   gender: string;
 
-  @Column({ type: 'varchar', length: 500 })
+  @ManyToOne(() => PetColorEntity, (petColor) => petColor.lostAnimalEvent)
+  color: PetColorEntity;
+
+  @Column({ type: 'longtext' })
   photo: string;
 
   @Column({ type: 'varchar' })

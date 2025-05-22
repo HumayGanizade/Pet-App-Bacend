@@ -10,6 +10,9 @@ export class CreateLostAnimalEventDto {
   @IsString({ message: 'gender should be string' })
   gender: string;
 
+  @IsString({ message: 'color should be string' })
+  colorId: string;
+
   @IsString({ message: 'photo should be string' })
   photo: string;
 

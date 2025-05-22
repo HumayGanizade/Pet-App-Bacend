@@ -10,6 +10,7 @@ import { Repository } from 'typeorm';
 import { CountryEntity } from '../typeorm/entities/country.entity';
 import { CityEntity } from '../typeorm/entities/city.entity';
 import { BreedEntity } from '../typeorm/entities/breed.entity';
+import { PetColorEntity } from '../typeorm/entities/pet-color.entity';
 
 @Injectable()
 export class DropdownInfoService {
@@ -19,6 +20,8 @@ export class DropdownInfoService {
     @InjectRepository(CountryEntity)
     private countryRepo: Repository<CountryEntity>,
     @InjectRepository(CityEntity) private cityRepo: Repository<CityEntity>,
+    @InjectRepository(PetColorEntity)
+    private petColorRepo: Repository<PetColorEntity>,
   ) {}
 
   async createPet(body) {
@@ -82,6 +85,10 @@ export class DropdownInfoService {
 
   async getAllCountries() {
     return await this.countryRepo.find();
+  }
+
+  async getAllPetColors() {
+    return await this.petColorRepo.find();
   }
 
   async getAllCitiesByCountryId(id: string) {

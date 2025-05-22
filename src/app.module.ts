@@ -18,6 +18,7 @@ import { CommentModule } from './comment/comment.module';
 import { DropdownInfoModule } from './dropdown-info/dropdown-info.module';
 import { CountryEntity } from './typeorm/entities/country.entity';
 import { CityEntity } from './typeorm/entities/city.entity';
+import { PetColorEntity } from './typeorm/entities/pet-color.entity';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { CityEntity } from './typeorm/entities/city.entity';
         BreedEntity,
         CountryEntity,
         CityEntity,
+        PetColorEntity,
       ],
       synchronize: false,
     }),

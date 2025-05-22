@@ -1,13 +1,15 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LostAnimalEventEntity } from '../typeorm/entities/lost-animal-event.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { UserEntity } from '../typeorm/entities/user.entity';
 import { BreedEntity } from '../typeorm/entities/breed.entity';
 import { PetEntity } from '../typeorm/entities/pet.entity';
 import { CreateLostAnimalEventDto } from './dto/create-lost-animal-event.dto';
 import { CountryEntity } from '../typeorm/entities/country.entity';
 import { CityEntity } from '../typeorm/entities/city.entity';
+import { LostAnimalEventFilterDto } from './dto/lost-animal-event-filter.dto';
+import { PetColorEntity } from '../typeorm/entities/pet-color.entity';
 
 @Injectable()
 export class LostAnimalEventService {
@@ -24,19 +26,71 @@ export class LostAnimalEventService {
     private countryRepo: Repository<CountryEntity>,
     @InjectRepository(CityEntity)
     private cityRepo: Repository<CityEntity>,
+    @InjectRepository(PetColorEntity)
+    private petColorRepo: Repository<PetColorEntity>,
+    private dataSource: DataSource,
   ) {}
 
-  async getAll() {
-    return await this.lostAnimalEventRepo.find({
-      order: {
-        createdAt: 'DESC',
-      },
-    });
+  async getAll(filter: LostAnimalEventFilterDto) {
+    const qb = this.dataSource
+      .getRepository(LostAnimalEventEntity)
+      .createQueryBuilder('lostAnimalEvent')
+      .leftJoinAndSelect('lostAnimalEvent.pet', 'pet')
+      .leftJoinAndSelect('lostAnimalEvent.breed', 'breed')
+      .leftJoinAndSelect('lostAnimalEvent.country', 'country')
+      .leftJoinAndSelect('lostAnimalEvent.city', 'city');
+
+    if (filter.maxAge < filter.minAge) {
+      filter.maxAge = filter.minAge;
+    }
+
+    if (filter.name) {
+      qb.andWhere('lostAnimalEvent.name LIKE :name', {
+        name: `${filter.name}%`,
+      });
+    }
+
+    if (filter.minAge !== undefined) {
+      qb.andWhere('lostAnimalEvent.age >= :minAge', { minAge: filter.minAge });
+    }
+
+    if (filter.maxAge !== undefined) {
+      qb.andWhere('lostAnimalEvent.age <= :maxAge', { maxAge: filter.maxAge });
+    }
+
+    if (filter.gender !== undefined) {
+      qb.andWhere('lostAnimalEvent.gender = :gender', {
+        gender: filter.gender,
+      });
+    }
+
+    if (filter.colorId !== undefined) {
+      qb.andWhere('lostAnimalEvent.color = :color', { gender: filter.gender });
+    }
+
+    if (filter.breedIds?.length && filter.breedIds !== undefined) {
+      qb.andWhere('breed.id IN (:...breedIds)', { breedIds: filter.breedIds });
+    }
+
+    if (filter.petId !== undefined) {
+      qb.andWhere('pet.id = :petId', { petId: filter.petId });
+    }
+
+    if (filter.countryId !== undefined) {
+      qb.andWhere('country.id = :countryId', { countryId: filter.countryId });
+    }
+
+    if (filter.cityId !== undefined) {
+      qb.andWhere('city.id = :cityId', { cityId: filter.cityId });
+    }
+    qb.orderBy('lostAnimalEvent.createdAt', 'DESC');
+    return qb.getMany();
   }
 
   async getById(id: string) {
     const LOEvent = await this.lostAnimalEventRepo.findOne({
       where: { id: id },
+      relations: ['country', 'city', 'pet', 'breed', 'color'],
     });
     if (!LOEvent) {
       throw new HttpException(
@@ -98,12 +152,23 @@ export class LostAnimalEventService {
         HttpStatus.NOT_FOUND,
       );
     }
+    const color = await this.petColorRepo.findOne({
+      where: { id: dto.colorId },
+    });
+    if (!color) {
+      throw new HttpException(
+        'color with given id was not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
     const newLOEvent = this.lostAnimalEventRepo.create(dto);
     newLOEvent.user = user;
     newLOEvent.pet = pet;
     newLOEvent.breed = breed;
     newLOEvent.country = country;
     newLOEvent.city = city;
+    newLOEvent.color = color;
+
     await this.lostAnimalEventRepo.save(newLOEvent);
     return { message: 'event was successfully created' };
   }
@@ -164,5 +229,12 @@ export class LostAnimalEventService {
 
     await this.lostAnimalEventRepo.remove(LOEvent);
     return 'event was successfully deleted';
+  }
+
+  async getColors() {
+    const colors = await this.petColorRepo.find();
+    if (colors.length === 0) {
+      return 'no colors were found';
+    } else return colors;
   }
 }

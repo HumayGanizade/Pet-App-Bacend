@@ -10,6 +10,7 @@ import { CountryEntity } from '../typeorm/entities/country.entity';
 import { CityEntity } from '../typeorm/entities/city.entity';
 import { RescueEventFilterDto } from './dto/rescue-event-filter.dto';
 import { DataSource } from 'typeorm';
+import { PetColorEntity } from '../typeorm/entities/pet-color.entity';
 
 @Injectable()
 export class RescueEventService {
@@ -26,6 +27,8 @@ export class RescueEventService {
     private countryRepo: Repository<CountryEntity>,
     @InjectRepository(CityEntity)
     private cityRepo: Repository<CityEntity>,
+    @InjectRepository(PetColorEntity)
+    private petColorRepo: Repository<PetColorEntity>,
     private dataSource: DataSource,
   ) {}
 
@@ -39,6 +42,10 @@ export class RescueEventService {
       .leftJoinAndSelect('event.breed', 'breed')
       .leftJoinAndSelect('event.country', 'country')
       .leftJoinAndSelect('event.city', 'city');
+
+    if (filter.maxAge < filter.minAge) {
+      filter.maxAge = filter.minAge;
+    }
 
     if (filter.minAge !== undefined) {
       qb.andWhere('event.age >= :minAge', { minAge: filter.minAge });
@@ -72,7 +79,10 @@ export class RescueEventService {
   }
 
   async getById(id: string) {
-    return await this.rescueAnimalEventRepo.findOne({ where: { id: id } });
+    return await this.rescueAnimalEventRepo.findOne({
+      where: { id },
+      relations: ['country', 'city', 'pet', 'breed', 'color'],
+    });
   }
 
   async getAllByUserId(id: string) {
@@ -128,12 +138,24 @@ export class RescueEventService {
         HttpStatus.NOT_FOUND,
       );
     }
+
+    const color = await this.petColorRepo.findOne({
+      where: { id: dto.colorId },
+    });
+    if (!color) {
+      throw new HttpException(
+        'color with given id was not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
     const newREvent = this.rescueAnimalEventRepo.create(dto);
     newREvent.pet = pet;
     newREvent.breed = breed;
     newREvent.user = user;
     newREvent.country = country;
     newREvent.city = city;
+    newREvent.color = color;
     await this.rescueAnimalEventRepo.save(newREvent);
     return { message: 'event was successfully created' };
   }

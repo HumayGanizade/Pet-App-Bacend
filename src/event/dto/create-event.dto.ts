@@ -4,7 +4,6 @@ import {
   IsDate,
   IsInt,
   IsEmail,
-  Length,
 } from 'class-validator';
 
 export class CreateEventDto {
@@ -27,7 +26,7 @@ export class CreateEventDto {
   location: string;
 
   @IsString({ message: 'photo should be type  string' })
-  @Length(0, 500)
+  // @Length(0, 2000000)
   photo: string;
 
   @IsString({ message: 'info should be type  string' })
