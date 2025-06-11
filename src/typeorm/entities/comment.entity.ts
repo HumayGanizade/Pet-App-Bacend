@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+} from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { UserEntity } from './user.entity';
 import { EventEntity } from './event.entity';
@@ -9,9 +16,6 @@ import { RescueAnimalEventEntity } from './rescue-animal-event.entity';
 export class CommentEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column({ type: 'int' })
-  stars: number;
 
   @Column({ type: 'varchar' })
   text: string;
@@ -27,4 +31,13 @@ export class CommentEntity extends BaseEntity {
 
   @ManyToOne(() => RescueAnimalEventEntity, (event) => event.comments)
   rescue_animal_event: RescueAnimalEventEntity;
+
+  @ManyToOne(() => CommentEntity, (comment) => comment.replies, {
+    nullable: true,
+  })
+  @JoinColumn({ name: 'parentId' })
+  parent: CommentEntity;
+
+  @OneToMany(() => CommentEntity, (comment) => comment.parent)
+  replies: CommentEntity[];
 }

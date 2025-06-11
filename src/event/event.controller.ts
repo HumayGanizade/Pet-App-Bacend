@@ -55,7 +55,7 @@ export class EventController {
   async getFilteredEvents(
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
-    @Query('type') type?: string, // Оставляем string, так как Query всегда строка
+    @Query('type') type?: string,
     @Query('minPrice') minPrice?: string,
     @Query('maxPrice') maxPrice?: string,
     @Query('countryId') countryId?: string,
@@ -75,7 +75,7 @@ export class EventController {
     return this.eventService.getFilteredEvents({
       startDate,
       endDate,
-      type: type && type.trim() !== '' ? Number(type) : null,
+      type: type && type.trim() !== '' ? String(type) : null,
       minPrice: minPrice && minPrice.trim() !== '' ? Number(minPrice) : null,
       maxPrice: maxPrice && maxPrice.trim() !== '' ? Number(maxPrice) : null,
       countryId,

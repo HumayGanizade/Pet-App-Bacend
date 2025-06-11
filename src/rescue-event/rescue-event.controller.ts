@@ -40,13 +40,13 @@ export class RescueEventController {
     return this.rescueEventService.create(req.user.id, dto);
   }
 
-  @Put()
+  @Put(':id')
   @UseGuards(JwtAuthGuard)
   editById(@Param('id') id: string, @Body() dto: RescueEventDto) {
     return this.rescueEventService.editById(id, dto);
   }
 
-  @Delete()
+  @Delete(':id')
   @UseGuards(JwtAuthGuard)
   deleteById(@Param('id') id: string) {
     return this.rescueEventService.deleteById(id);

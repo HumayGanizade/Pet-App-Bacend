@@ -1,9 +1,6 @@
 import { IsInt, IsString, Max, Min } from 'class-validator';
 
 export class CreateCommentDto {
-  @IsInt({ message: 'start must be integer' })
-  stars: number;
-
   @IsString({ message: 'text must be string' })
   text: string;
 

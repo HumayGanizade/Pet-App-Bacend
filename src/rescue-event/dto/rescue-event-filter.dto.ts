@@ -26,6 +26,7 @@ export class RescueEventFilterDto {
 
   @IsOptional()
   @IsArray()
+  @Type(() => String)
   breedIds?: string[];
 
   @IsOptional()

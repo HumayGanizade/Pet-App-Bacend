@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EventEntity } from '../typeorm/entities/event.entity';
 import { Raw, Repository } from 'typeorm';
@@ -82,12 +87,21 @@ export class EventService {
   async editEventById(dto: EditEventDto, id: string) {
     const event = await this.eventRepo.findOne({
       where: { id: id },
+      relations: ['pets', 'breeds', 'country', 'city'],
     });
     if (!event) {
       throw new HttpException(
         'event with given id was not found',
         HttpStatus.NOT_FOUND,
       );
+    }
+
+    if ((dto.petsIds ?? []).length === 0) {
+      throw new BadRequestException('At least one pet must be selected');
+    }
+
+    if ((dto.breedIds ?? []).length === 0) {
+      throw new BadRequestException('At least one breed must be selected');
     }
 
     await this.eventValidator(dto);
@@ -105,18 +119,18 @@ export class EventService {
     event.gmail = dto.gmail;
 
     event.pets = [];
-    for (const petId of dto.petsIds) {
+    for (const petId of dto.petsIds ?? []) {
       const pet = await this.petRepo.findOne({ where: { id: petId } });
-      event.pets.push(pet);
-    }
-    event.breeds = [];
-    for (const breedId of dto.breedIds) {
-      const breed = await this.breedRepo.findOne({
-        where: { id: breedId },
-      });
-      event.breeds.push(breed);
+      if (pet) event.pets.push(pet);
     }
 
+    event.breeds = [];
+    for (const breedId of dto.breedIds ?? []) {
+      const breed = await this.breedRepo.findOne({ where: { id: breedId } });
+      if (breed) event.breeds.push(breed);
+    }
+
+    console.log(event.country);
     if (event.country.id !== dto.countryId) {
       event.country = await this.countryRepo.findOne({
         where: { id: dto.countryId },
@@ -187,7 +201,7 @@ export class EventService {
       );
     } else {
       await this.eventRepo.remove(eventToDelete);
-      return 'event was successfully deleted';
+      return { message: 'event was successfully deleted' };
     }
   }
 
@@ -256,7 +270,7 @@ export class EventService {
   async getFilteredEvents(filters: {
     startDate?: string;
     endDate?: string;
-    type?: number;
+    type?: string;
     minPrice?: number;
     maxPrice?: number;
     countryId?: string;
@@ -310,13 +324,13 @@ export class EventService {
       query.andWhere('event.cityId = :cityId', { cityId: filters.cityId });
     }
 
-    if (filters.petsIds.length > 0) {
+    if (Array.isArray(filters.petsIds) && filters.petsIds.length > 0) {
       query.innerJoin('event.pets', 'pet').andWhere('pet.id IN (:...petsIds)', {
         petsIds: filters.petsIds,
       });
     }
 
-    if (filters.breedIds.length > 0) {
+    if (Array.isArray(filters.breedIds) && filters.breedIds.length > 0) {
       query
         .innerJoin('event.breeds', 'breed')
         .andWhere('breed.id IN (:...breedIds)', { breedIds: filters.breedIds });

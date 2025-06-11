@@ -30,7 +30,7 @@ export class LostAnimalEventFilterDto {
 
   @IsOptional()
   @IsArray()
-  breedIds?: string[];
+  breedIds?: string;
 
   @IsOptional()
   @IsString()

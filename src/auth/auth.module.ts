@@ -14,7 +14,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     TypeOrmModule.forFeature([UserEntity]),
     JwtModule.register({
       secret: 'humay123',
-      signOptions: { expiresIn: '1h' },
+      signOptions: { expiresIn: '24h' },
     }),
   ],
   controllers: [AuthController],

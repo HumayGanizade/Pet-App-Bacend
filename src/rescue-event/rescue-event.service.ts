@@ -55,26 +55,28 @@ export class RescueEventService {
       qb.andWhere('event.age <= :maxAge', { maxAge: filter.maxAge });
     }
 
-    if (filter.gender !== undefined) {
-      qb.andWhere('event.gender == :gender', { gender: filter.gender });
+    if (filter.gender) {
+      qb.andWhere('event.gender = :gender', { gender: filter.gender });
     }
 
-    if (filter.petId !== undefined) {
+    if (filter.petId) {
       qb.andWhere('pet.id = :petId', { petId: filter.petId });
     }
 
-    if (filter.breedIds?.length && filter.breedIds !== undefined) {
+    if (Array.isArray(filter.breedIds) && filter.breedIds.length > 0) {
       qb.andWhere('breed.id IN (:...breedIds)', { breedIds: filter.breedIds });
     }
 
-    if (filter.countryId !== undefined) {
+    if (filter.countryId) {
       qb.andWhere('country.id = :countryId', { countryId: filter.countryId });
     }
 
-    if (filter.cityId !== undefined) {
+    if (filter.cityId) {
       qb.andWhere('city.id = :cityId', { cityId: filter.cityId });
     }
+
     qb.orderBy('event.createdAt', 'DESC');
+
     return qb.getMany();
   }
 
@@ -94,7 +96,7 @@ export class RescueEventService {
       );
     }
     const REvents = await this.rescueAnimalEventRepo.find({
-      where: { user: user },
+      where: { user: { id: id } },
       order: { createdAt: 'DESC' },
     });
     if (REvents.length === 0) {
@@ -160,9 +162,10 @@ export class RescueEventService {
     return { message: 'event was successfully created' };
   }
 
-  async editById(id, dto: RescueEventDto) {
+  async editById(id: string, dto: RescueEventDto) {
     const REvent = await this.rescueAnimalEventRepo.findOne({
       where: { id: id },
+      relations: ['country', 'city', 'pet', 'breed', 'color'],
     });
     if (!REvent) {
       throw new HttpException(
@@ -203,7 +206,7 @@ export class RescueEventService {
     }
 
     await this.rescueAnimalEventRepo.save(REvent);
-    return 'event was successfully updated';
+    return { message: 'event was successfully updated' };
   }
 
   async deleteById(id: string) {
@@ -217,7 +220,7 @@ export class RescueEventService {
       );
     } else {
       await this.rescueAnimalEventRepo.remove(REvent);
-      return 'event was successfully deleted';
+      return { message: 'event was successfully deleted' };
     }
   }
 }

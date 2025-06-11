@@ -1,14 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LostAnimalEventEntity } from '../typeorm/entities/lost-animal-event.entity';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { UserEntity } from '../typeorm/entities/user.entity';
 import { BreedEntity } from '../typeorm/entities/breed.entity';
 import { PetEntity } from '../typeorm/entities/pet.entity';
 import { CreateLostAnimalEventDto } from './dto/create-lost-animal-event.dto';
 import { CountryEntity } from '../typeorm/entities/country.entity';
 import { CityEntity } from '../typeorm/entities/city.entity';
-import { LostAnimalEventFilterDto } from './dto/lost-animal-event-filter.dto';
 import { PetColorEntity } from '../typeorm/entities/pet-color.entity';
 
 @Injectable()
@@ -28,17 +27,25 @@ export class LostAnimalEventService {
     private cityRepo: Repository<CityEntity>,
     @InjectRepository(PetColorEntity)
     private petColorRepo: Repository<PetColorEntity>,
-    private dataSource: DataSource,
   ) {}
 
-  async getAll(filter: LostAnimalEventFilterDto) {
-    const qb = this.dataSource
-      .getRepository(LostAnimalEventEntity)
+  async getAll(filter: {
+    minAge?: number;
+    maxAge?: number;
+    gender?: string;
+    colorId?: string;
+    petId?: string;
+    breedIds?: string[];
+    countryId?: string;
+    cityId?: string;
+    name?: string;
+  }) {
+    const qb = this.lostAnimalEventRepo
       .createQueryBuilder('lostAnimalEvent')
-      .leftJoinAndSelect('lostAnimalEvent.pet', 'pet')
-      .leftJoinAndSelect('lostAnimalEvent.breed', 'breed')
-      .leftJoinAndSelect('lostAnimalEvent.country', 'country')
-      .leftJoinAndSelect('lostAnimalEvent.city', 'city');
+      .leftJoin('lostAnimalEvent.pet', 'pet')
+      .leftJoin('lostAnimalEvent.breed', 'breed')
+      .leftJoin('lostAnimalEvent.country', 'country')
+      .leftJoin('lostAnimalEvent.city', 'city');
 
     if (filter.maxAge < filter.minAge) {
       filter.maxAge = filter.minAge;
@@ -68,7 +75,7 @@ export class LostAnimalEventService {
       qb.andWhere('lostAnimalEvent.color = :color', { gender: filter.gender });
     }
 
-    if (filter.breedIds?.length && filter.breedIds !== undefined) {
+    if (Array.isArray(filter.breedIds) && filter.breedIds.length > 0) {
       qb.andWhere('breed.id IN (:...breedIds)', { breedIds: filter.breedIds });
     }
 
@@ -109,7 +116,7 @@ export class LostAnimalEventService {
       );
     }
     const userEvents = await this.lostAnimalEventRepo.find({
-      where: { user: user },
+      where: { user: { id: id } },
       order: {
         createdAt: 'DESC',
       },
@@ -176,6 +183,7 @@ export class LostAnimalEventService {
   async editById(dto: CreateLostAnimalEventDto, id: string) {
     const LOEvent = await this.lostAnimalEventRepo.findOne({
       where: { id: id },
+      relations: ['country', 'city', 'pet', 'breed', 'color'],
     });
     if (!LOEvent) {
       throw new HttpException(
@@ -213,7 +221,7 @@ export class LostAnimalEventService {
       });
     }
     await this.lostAnimalEventRepo.save(LOEvent);
-    return 'event was successfully updated';
+    return { message: 'event was successfully updated' };
   }
 
   async deleteById(id: string) {
@@ -228,7 +236,7 @@ export class LostAnimalEventService {
     }
 
     await this.lostAnimalEventRepo.remove(LOEvent);
-    return 'event was successfully deleted';
+    return { message: 'event was successfully deleted' };
   }
 
   async getColors() {

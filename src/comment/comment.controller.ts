@@ -5,8 +5,9 @@ import {
   Post,
   UseGuards,
   Request,
-  Put,
   Delete,
+  Get,
+  Put,
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
@@ -18,25 +19,59 @@ export class CommentController {
   constructor(private commentService: CommentService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Post(':id')
+  @Post(':eventId/:eventTypeId')
   create(
-    @Param('id') id: string,
-    @Request() req,
+    @Param('eventId') eventId: string,
+    @Param('eventTypeId') eventTypeId: number,
+    @Request() req: any,
     @Body() dto: CreateCommentDto,
-    eventTypeId: number,
   ) {
-    return this.commentService.create(id, req.user.id, dto, eventTypeId);
+    return this.commentService.create(eventId, req.user.id, dto, eventTypeId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id')
+  createReplyToComment(
+    @Param('id') commentId: string,
+    @Request() req: any,
+    @Body() dto: CreateCommentDto,
+  ) {
+    return this.commentService.createReplyToComment(
+      commentId,
+      dto,
+      req.user.id,
+    );
+  }
+
+  @Get('getCommentsByEventType/:eventId/:eventTypeId')
+  async getCommentsByEventType(
+    @Param('eventId') eventId: string,
+    @Param('eventTypeId') eventTypeId: number,
+  ) {
+    return await this.commentService.getCommentsByEventType(
+      eventId,
+      eventTypeId,
+    );
+  }
+
+  @Get('getRepliesOfComment/:commentId')
+  async getRepliesOfComment(@Param('commentId') commentId: string) {
+    return await this.commentService.getRepliesOfComment(commentId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Put(':id')
-  edit(@Param('id') id: string, @Body() dto: EditCommentDto, @Request() req) {
+  edit(
+    @Param('id') id: string,
+    @Body() dto: EditCommentDto,
+    @Request() req: any,
+  ) {
     return this.commentService.edit(id, req.user.id, dto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  delete(@Param('id') id: string, @Request() req) {
+  delete(@Param('id') id: string, @Request() req: any) {
     return this.commentService.delete(id, req.user.id);
   }
 }
