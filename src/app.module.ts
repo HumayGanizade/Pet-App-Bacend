@@ -19,6 +19,7 @@ import { DropdownInfoModule } from './dropdown-info/dropdown-info.module';
 import { CountryEntity } from './typeorm/entities/country.entity';
 import { CityEntity } from './typeorm/entities/city.entity';
 import { PetColorEntity } from './typeorm/entities/pet-color.entity';
+import { SavedEventModule } from './saved-event/saved-event.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { PetColorEntity } from './typeorm/entities/pet-color.entity';
     LostAnimalEventModule,
     CommentModule,
     DropdownInfoModule,
+    SavedEventModule,
   ],
   controllers: [AppController],
   providers: [AppService],

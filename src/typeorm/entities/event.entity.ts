@@ -72,4 +72,7 @@ export class EventEntity extends BaseEntity {
 
   @OneToMany(() => CommentEntity, (comment) => comment.event)
   comments: CommentEntity[];
+
+  @ManyToMany(() => UserEntity, (user) => user.savedGeneralEvents)
+  savedByUsers: UserEntity[];
 }
