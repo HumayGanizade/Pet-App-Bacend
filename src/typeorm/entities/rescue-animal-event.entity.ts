@@ -1,6 +1,6 @@
 import {
   Column,
-  Entity,
+  Entity, ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -63,4 +63,7 @@ export class RescueAnimalEventEntity extends BaseEntity {
 
   @OneToMany(() => CommentEntity, (comment) => comment.rescue_animal_event)
   comments: CommentEntity[];
+
+  @ManyToMany(() => UserEntity, (user) => user.savedRescueEvents)
+  savedByUsers: UserEntity[];
 }
