@@ -23,9 +23,29 @@ export class AuthService {
       const matched = await comparePasswords(dto.password, findUser.password);
       if (matched) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { password, ...user } = findUser;
-        const token = this.jwtService.sign(user);
-        return { token };
+        // const { password, ...user } = findUser;
+        // const token = this.jwtService.sign(user);
+        const { password, photo, date_of_birth, contact_number, ...rest } = findUser;
+        const payload = {
+          id: findUser.id,
+          gmail: findUser.gmail,
+          name: findUser.name,
+        };
+        const token = this.jwtService.sign(payload);
+
+        return {
+          token,
+          user: {
+            id: findUser.id,
+            name: findUser.name,
+            surname: findUser.surname,
+            gmail: findUser.gmail,
+            gender: findUser.gender,
+            contactNumber: findUser.contact_number,
+            photo: findUser.photo,
+            dateOfBirth: findUser.date_of_birth,
+          },
+        };
       } else throw new UnauthorizedException('Invalid email or password!');
     }
   }

@@ -22,7 +22,7 @@ export class UserEntity extends BaseEntity {
   @Column({ type: 'varchar' })
   gender: string;
 
-  @Column({ type: 'varchar', length: 500, nullable: true })
+  @Column({ type: 'longtext', nullable: true })
   photo: string;
 
   @Column({ type: 'varchar' })

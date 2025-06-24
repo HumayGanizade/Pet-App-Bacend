@@ -4,6 +4,9 @@ import { UserEntity } from '../typeorm/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { encodePassword } from '../utils/bcrypt';
+import { EditUserDto } from './dto/edit-user.dto';
+import { compare } from 'bcrypt';
+import { ChangePasswordDto } from '../event/dto/change-password.dto';
 
 @Injectable()
 export class UserService {
@@ -32,8 +35,46 @@ export class UserService {
       password: dto.password,
       contact_number: null,
     };
-    const newUser = await this.userRepo.create(newUserObject);
+    const newUser = this.userRepo.create(newUserObject);
     await this.userRepo.save(newUser);
     return { message: 'User was successfully created' };
+  }
+
+  async getUserById(id: string) {
+    const user = await this.userRepo.findOne({ where: { id } });
+    if (!user) return null;
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...safeUser } = user;
+    return safeUser;
+  }
+
+  async editUser(dto: EditUserDto, id: string): Promise<UserEntity> {
+    const user = await this.getUserById(id);
+    if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+
+    user.name = dto.name ?? user.name;
+    user.surname = dto.surname ?? user.surname;
+    user.contact_number = dto.contact_number ?? user.contact_number;
+    user.photo = dto.photo ?? user.photo;
+
+    return this.userRepo.save(user);
+  }
+
+  async changePassword(id: string, dto: ChangePasswordDto) {
+    const user = await this.userRepo.findOne({ where: { id } });
+    if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+
+    const isMatch = await compare(dto.currentPassword, user.password);
+    if (!isMatch)
+      throw new HttpException(
+        'Current password is incorrect',
+        HttpStatus.BAD_REQUEST,
+      );
+
+    user.password = await encodePassword(dto.newPassword);
+    await this.userRepo.save(user);
+
+    return { message: 'Password updated' };
   }
 }

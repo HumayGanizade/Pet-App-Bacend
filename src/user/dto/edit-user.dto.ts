@@ -1,11 +1,7 @@
 import {
-  IsEmail,
-  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
-  Min,
-  MaxLength, IsDateString,
 } from 'class-validator';
 
 export class EditUserDto {
@@ -17,25 +13,9 @@ export class EditUserDto {
   @IsNotEmpty()
   surname: string;
 
-  @IsDateString()
-  date_of_birth: string;
-
-  @IsString()
-  @IsNotEmpty()
-  gender: string;
-
-  @IsString()
+  @IsString({ message: 'photo should be type  string' })
   @IsOptional()
-  @MaxLength(500)
   photo?: string;
-
-  @IsEmail()
-  @IsNotEmpty()
-  gmail: string;
-
-  @IsString()
-  @IsNotEmpty()
-  password: string;
 
   @IsString()
   @IsNotEmpty()
